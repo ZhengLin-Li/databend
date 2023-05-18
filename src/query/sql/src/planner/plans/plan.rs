@@ -71,6 +71,7 @@ use crate::plans::DropUDFPlan;
 use crate::plans::DropUserPlan;
 use crate::plans::DropViewPlan;
 use crate::plans::ExistsTablePlan;
+use crate::plans::GenerateVirtualColumnsPlan;
 use crate::plans::GrantPrivilegePlan;
 use crate::plans::GrantRolePlan;
 use crate::plans::KillPlan;
@@ -164,6 +165,7 @@ pub enum Plan {
     VacuumTable(Box<VacuumTablePlan>),
     AnalyzeTable(Box<AnalyzeTablePlan>),
     ExistsTable(Box<ExistsTablePlan>),
+    GenerateVirtualColumns(Box<GenerateVirtualColumnsPlan>),
 
     // Insert
     Insert(Box<Insert>),
@@ -289,6 +291,7 @@ impl Display for Plan {
             Plan::VacuumTable(_) => write!(f, "VacuumTable"),
             Plan::AnalyzeTable(_) => write!(f, "AnalyzeTable"),
             Plan::ExistsTable(_) => write!(f, "ExistsTable"),
+            Plan::GenerateVirtualColumns(_) => write!(f, "GenerateVirtualColumns"),
             Plan::CreateView(_) => write!(f, "CreateView"),
             Plan::AlterView(_) => write!(f, "AlterView"),
             Plan::DropView(_) => write!(f, "DropView"),

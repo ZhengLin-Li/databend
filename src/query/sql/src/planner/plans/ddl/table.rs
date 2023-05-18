@@ -308,3 +308,16 @@ impl DropTableClusterKeyPlan {
         Arc::new(DataSchema::empty())
     }
 }
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct GenerateVirtualColumnsPlan {
+    pub catalog: String,
+    pub database: String,
+    pub table: String,
+}
+
+impl GenerateVirtualColumnsPlan {
+    pub fn schema(&self) -> DataSchemaRef {
+        Arc::new(DataSchema::empty())
+    }
+}

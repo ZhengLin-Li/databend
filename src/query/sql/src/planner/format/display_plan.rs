@@ -71,6 +71,9 @@ impl Plan {
             Plan::VacuumTable(vacuum_table) => Ok(format!("{:?}", vacuum_table)),
             Plan::AnalyzeTable(analyze_table) => Ok(format!("{:?}", analyze_table)),
             Plan::ExistsTable(exists_table) => Ok(format!("{:?}", exists_table)),
+            Plan::GenerateVirtualColumns(generate_virtual_columns) => {
+                Ok(format!("{:?}", generate_virtual_columns))
+            }
 
             // Views
             Plan::CreateView(create_view) => Ok(format!("{:?}", create_view)),

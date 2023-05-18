@@ -15,6 +15,7 @@
 use std::fmt::Display;
 use std::fmt::Formatter;
 
+use crate::ast::write_period_separated_list;
 use crate::ast::Identifier;
 use crate::ast::ShowLimit;
 
@@ -46,6 +47,28 @@ impl Display for ShowColumnsStmt {
         if let Some(limit) = &self.limit {
             write!(f, " {limit}")?;
         }
+
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct GenerateVirtualColumnsStmt {
+    pub catalog: Option<Identifier>,
+    pub database: Option<Identifier>,
+    pub table: Identifier,
+}
+
+impl Display for GenerateVirtualColumnsStmt {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        write!(f, "GENERATE VIRTUAL COLUMNS FOR TABLE ")?;
+        write_period_separated_list(
+            f,
+            self.catalog
+                .iter()
+                .chain(&self.database)
+                .chain(Some(&self.table)),
+        )?;
 
         Ok(())
     }

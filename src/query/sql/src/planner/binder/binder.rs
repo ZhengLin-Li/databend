@@ -242,6 +242,7 @@ impl<'a> Binder {
             Statement::VacuumTable(stmt) => self.bind_vacuum_table(bind_context, stmt).await?,
             Statement::AnalyzeTable(stmt) => self.bind_analyze_table(stmt).await?,
             Statement::ExistsTable(stmt) => self.bind_exists_table(stmt).await?,
+            Statement::GenerateVirtualColumns(stmt) => self.bind_generate_virtual_columns(stmt).await?,
 
             // Views
             Statement::CreateView(stmt) => self.bind_create_view(stmt).await?,

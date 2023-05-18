@@ -414,6 +414,8 @@ pub trait Visitor<'ast>: Sized {
 
     fn visit_use_database(&mut self, _database: &'ast Identifier) {}
 
+    fn visit_generate_virtual_columns(&mut self, _stmt: &'ast GenerateVirtualColumnsStmt) {}
+
     fn visit_show_tables(&mut self, _stmt: &'ast ShowTablesStmt) {}
 
     fn visit_show_columns(&mut self, _stmt: &'ast ShowColumnsStmt) {}

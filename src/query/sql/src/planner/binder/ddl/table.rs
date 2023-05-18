@@ -28,6 +28,7 @@ use common_ast::ast::DropTableStmt;
 use common_ast::ast::Engine;
 use common_ast::ast::ExistsTableStmt;
 use common_ast::ast::Expr;
+use common_ast::ast::GenerateVirtualColumnsStmt;
 use common_ast::ast::Identifier;
 use common_ast::ast::Literal;
 use common_ast::ast::OptimizeTableAction as AstOptimizeTableAction;
@@ -90,6 +91,7 @@ use crate::plans::DropTableClusterKeyPlan;
 use crate::plans::DropTableColumnPlan;
 use crate::plans::DropTablePlan;
 use crate::plans::ExistsTablePlan;
+use crate::plans::GenerateVirtualColumnsPlan;
 use crate::plans::OptimizeTableAction;
 use crate::plans::OptimizeTablePlan;
 use crate::plans::Plan;
@@ -1083,5 +1085,28 @@ impl Binder {
         }
 
         Ok(cluster_keys)
+    }
+
+    #[async_backtrace::framed]
+    pub(in crate::planner::binder) async fn bind_generate_virtual_columns(
+        &mut self,
+        stmt: &GenerateVirtualColumnsStmt,
+    ) -> Result<Plan> {
+        let GenerateVirtualColumnsStmt {
+            catalog,
+            database,
+            table,
+        } = stmt;
+
+        let (catalog, database, table) =
+            self.normalize_object_identifier_triple(catalog, database, table);
+
+        Ok(Plan::GenerateVirtualColumns(Box::new(
+            GenerateVirtualColumnsPlan {
+                catalog,
+                database,
+                table,
+            },
+        )))
     }
 }

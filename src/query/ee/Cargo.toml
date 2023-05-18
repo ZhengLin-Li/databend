@@ -19,6 +19,7 @@ common-base = { path = "../../common/base" }
 common-catalog = { path = "../catalog" }
 common-config = { path = "../config" }
 common-exception = { path = "../../common/exception" }
+common-expression = { path = "../expression" }
 common-license = { path = "../../common/license" }
 common-meta-app = { path = "../../meta/app" }
 common-settings = { path = "../../query/settings" }
@@ -27,6 +28,7 @@ databend-query = { path = "../service" }
 storages-common-cache = { path = "../storages/common/cache" }
 storages-common-table-meta = { path = "../storages/common/table-meta" }
 vacuum-handler = { path = "../ee-features/vacuum-handler" }
+virtual-columns-handler = { path = "../ee-features/virtual-columns-handler" }
 
 async-trait = "0.1.57"
 chrono = { workspace = true }

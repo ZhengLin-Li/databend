@@ -1138,6 +1138,15 @@ impl<'ast> Visitor<'ast> for AstFormatVisitor {
         self.children.push(node);
     }
 
+    fn visit_generate_virtual_columns(&mut self, stmt: &'ast GenerateVirtualColumnsStmt) {
+        self.visit_table_ref(&stmt.catalog, &stmt.database, &stmt.table);
+        let child = self.children.pop().unwrap();
+        let name = "GenerateVirtualColumns".to_string();
+        let format_ctx = AstFormatContext::with_children(name, 1);
+        let node = FormatTreeNode::with_children(format_ctx, vec![child]);
+        self.children.push(node);
+    }
+
     fn visit_show_tables(&mut self, stmt: &'ast ShowTablesStmt) {
         let mut children = Vec::new();
         if let Some(database) = &stmt.database {

@@ -22,7 +22,10 @@ use common_exception::Result;
 use common_storages_fuse::FuseTable;
 use vacuum_handler::VacuumHandler;
 use vacuum_handler::VacuumHandlerWrapper;
+use virtual_columns_handler::VirtualColumnsHandler;
+use virtual_columns_handler::VirtualColumnsHandlerWrapper;
 
+use crate::storages::fuse::do_generate_virtual_columns;
 use crate::storages::fuse::do_vacuum;
 
 pub struct RealVacuumHandler {}
@@ -44,6 +47,28 @@ impl RealVacuumHandler {
     pub fn init() -> Result<()> {
         let rm = RealVacuumHandler {};
         let wrapper = VacuumHandlerWrapper::new(Box::new(rm));
+        GlobalInstance::set(Arc::new(wrapper));
+        Ok(())
+    }
+}
+
+pub struct RealVirtualColumnsHandler {}
+
+#[async_trait::async_trait]
+impl VirtualColumnsHandler for RealVirtualColumnsHandler {
+    async fn do_generate_virtual_columns(
+        &self,
+        fuse_table: &FuseTable,
+        ctx: Arc<dyn TableContext>,
+    ) -> Result<()> {
+        do_generate_virtual_columns(fuse_table, ctx).await
+    }
+}
+
+impl RealVirtualColumnsHandler {
+    pub fn init() -> Result<()> {
+        let rm = RealVirtualColumnsHandler {};
+        let wrapper = VirtualColumnsHandlerWrapper::new(Box::new(rm));
         GlobalInstance::set(Arc::new(wrapper));
         Ok(())
     }

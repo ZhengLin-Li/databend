@@ -397,6 +397,8 @@ pub trait VisitorMut: Sized {
 
     fn visit_drop_catalog(&mut self, _stmt: &mut DropCatalogStmt) {}
 
+    fn visit_generate_virtual_columns(&mut self, _stmt: &mut GenerateVirtualColumnsStmt) {}
+
     fn visit_show_databases(&mut self, _stmt: &mut ShowDatabasesStmt) {}
 
     fn visit_show_create_databases(&mut self, _stmt: &mut ShowCreateDatabaseStmt) {}

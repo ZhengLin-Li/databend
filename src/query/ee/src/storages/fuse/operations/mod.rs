@@ -14,4 +14,6 @@
 
 pub mod handler;
 pub mod vacuum;
+pub mod virtual_columns;
 pub use handler::RealVacuumHandler;
+pub use handler::RealVirtualColumnsHandler;

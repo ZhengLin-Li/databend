@@ -461,5 +461,6 @@ pub fn walk_statement<'a, V: Visitor<'a>>(visitor: &mut V, statement: &'a Statem
             visitor.visit_show_object_grant_privileges(stmt)
         }
         Statement::ShowGrantsOfShare(stmt) => visitor.visit_show_grants_of_share(stmt),
+        Statement::GenerateVirtualColumns(stmt) => visitor.visit_generate_virtual_columns(stmt),
     }
 }

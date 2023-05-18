@@ -384,6 +384,18 @@ pub fn statement(i: Input) -> IResult<StatementMsg> {
         },
         |(_, database)| Statement::UseDatabase { database },
     );
+    let generate_virtual_columns = map(
+        rule! {
+            GENERATE ~ VIRTUAL ~ COLUMNS ~ FOR ~ #period_separated_idents_1_to_3
+        },
+        |(_, _, _, _, (catalog, database, table))| {
+            Statement::GenerateVirtualColumns(GenerateVirtualColumnsStmt {
+                catalog,
+                database,
+                table,
+            })
+        },
+    );
     let show_tables = map(
         rule! {
             SHOW ~ FULL? ~ TABLES ~ HISTORY? ~ ( ( FROM | IN ) ~ #period_separated_idents_1_to_2 )? ~ #show_limit?
@@ -1221,6 +1233,7 @@ pub fn statement(i: Input) -> IResult<StatementMsg> {
             | #analyze_table : "`ANALYZE TABLE [<database>.]<table>`"
             | #exists_table : "`EXISTS TABLE [<database>.]<table>`"
             | #show_table_functions : "`SHOW TABLE_FUNCTIONS [<show_limit>]`"
+            | #generate_virtual_columns: "`GENERATE VIRTUAL COLUMNS FOR [<database>.]<table>`"
         ),
         rule!(
             #create_view : "`CREATE VIEW [IF NOT EXISTS] [<database>.]<view> [(<column>, ...)] AS SELECT ...`"

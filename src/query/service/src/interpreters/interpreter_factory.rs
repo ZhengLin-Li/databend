@@ -205,7 +205,12 @@ impl InterpreterFactory {
                 ctx,
                 *exists_table.clone(),
             )?)),
-
+            Plan::GenerateVirtualColumns(generate_virtual_columns) => {
+                Ok(Arc::new(GenerateVirtualColumnsInterpreter::try_create(
+                    ctx,
+                    *generate_virtual_columns.clone(),
+                )?))
+            }
             // Views
             Plan::CreateView(create_view) => Ok(Arc::new(CreateViewInterpreter::try_create(
                 ctx,

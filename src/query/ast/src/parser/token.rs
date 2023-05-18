@@ -519,6 +519,8 @@ pub enum TokenKind {
     SET_VAR,
     #[token("FUSE", ignore(ascii_case))]
     FUSE,
+    #[token("GENERATE", ignore(ascii_case))]
+    GENERATE,
     #[token("GLOBAL", ignore(ascii_case))]
     GLOBAL,
     #[token("GRAPH", ignore(ascii_case))]
@@ -899,6 +901,8 @@ pub enum TokenKind {
     VARIANT,
     #[token("VIEW", ignore(ascii_case))]
     VIEW,
+    #[token("VIRTUAL", ignore(ascii_case))]
+    VIRTUAL,
     #[token("WEEK", ignore(ascii_case))]
     WEEK,
     #[token("WHEN", ignore(ascii_case))]

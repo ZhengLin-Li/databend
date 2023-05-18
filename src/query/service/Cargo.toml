@@ -101,6 +101,7 @@ storages-common-cache-manager = { path = "../storages/common/cache-manager" }
 storages-common-index = { path = "../storages/common/index" }
 storages-common-table-meta = { path = "../storages/common/table-meta" }
 vacuum-handler = { path = "../ee-features/vacuum-handler" }
+virtual-columns-handler = { path = "../ee-features/virtual-columns-handler" }
 
 # GitHub dependencies
 

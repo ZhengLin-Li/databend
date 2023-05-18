@@ -116,6 +116,7 @@ pub enum Statement {
     VacuumTable(VacuumTableStmt),
     AnalyzeTable(AnalyzeTableStmt),
     ExistsTable(ExistsTableStmt),
+    GenerateVirtualColumns(GenerateVirtualColumnsStmt),
     // Columns
     ShowColumns(ShowColumnsStmt),
 
@@ -371,6 +372,7 @@ impl Display for Statement {
             Statement::VacuumTable(stmt) => write!(f, "{stmt}")?,
             Statement::AnalyzeTable(stmt) => write!(f, "{stmt}")?,
             Statement::ExistsTable(stmt) => write!(f, "{stmt}")?,
+            Statement::GenerateVirtualColumns(stmt) => write!(f, "{stmt}")?,
             Statement::CreateView(stmt) => write!(f, "{stmt}")?,
             Statement::AlterView(stmt) => write!(f, "{stmt}")?,
             Statement::DropView(stmt) => write!(f, "{stmt}")?,
