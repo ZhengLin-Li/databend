@@ -24,8 +24,8 @@ use common_exception::ErrorCode;
 use common_exception::Result;
 use common_expression::BLOCK_NAME_COL_NAME;
 use futures_util::future;
+use storages_common_pruner::BlockInfo;
 use storages_common_pruner::BlockMetaIndex;
-use storages_common_table_meta::meta::BlockMeta;
 use storages_common_table_meta::meta::CompactSegmentInfo;
 
 use super::SegmentLocation;
@@ -47,7 +47,7 @@ impl BlockPruner {
         &self,
         segment_location: SegmentLocation,
         segment_info: &CompactSegmentInfo,
-    ) -> Result<Vec<(BlockMetaIndex, Arc<BlockMeta>)>> {
+    ) -> Result<Vec<BlockInfo>> {
         if let Some(bloom_pruner) = &self.pruning_ctx.bloom_pruner {
             self.block_pruning(bloom_pruner, segment_location, segment_info)
                 .await
@@ -65,7 +65,7 @@ impl BlockPruner {
         bloom_pruner: &Arc<dyn BloomPruner + Send + Sync>,
         segment_location: SegmentLocation,
         segment_info: &CompactSegmentInfo,
-    ) -> Result<Vec<(BlockMetaIndex, Arc<BlockMeta>)>> {
+    ) -> Result<Vec<BlockInfo>> {
         let pruning_stats = self.pruning_ctx.pruning_stats.clone();
         let pruning_runtime = &self.pruning_ctx.pruning_runtime;
         let pruning_semaphore = &self.pruning_ctx.pruning_semaphore;
@@ -208,6 +208,7 @@ impl BlockPruner {
                         snapshot_location: segment_location.snapshot_loc.clone(),
                     },
                     block,
+                    false,
                 ))
             }
         }
@@ -224,7 +225,7 @@ impl BlockPruner {
         &self,
         segment_location: SegmentLocation,
         segment_info: &CompactSegmentInfo,
-    ) -> Result<Vec<(BlockMetaIndex, Arc<BlockMeta>)>> {
+    ) -> Result<Vec<BlockInfo>> {
         let pruning_stats = self.pruning_ctx.pruning_stats.clone();
         let limit_pruner = self.pruning_ctx.limit_pruner.clone();
         let range_pruner = self.pruning_ctx.range_pruner.clone();
@@ -286,6 +287,7 @@ impl BlockPruner {
                             snapshot_location: segment_location.snapshot_loc.clone(),
                         },
                         block_meta.clone(),
+                        false,
                     ))
                 }
             }

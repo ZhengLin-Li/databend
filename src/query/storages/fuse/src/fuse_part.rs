@@ -33,15 +33,14 @@ use storages_common_table_meta::meta::Compression;
 #[derive(serde::Serialize, serde::Deserialize, PartialEq, Eq, Debug)]
 pub struct FusePartInfo {
     pub location: String,
-    /// FusePartInfo itself is not versioned
-    /// the `format_version` is the version of the block which the `location` points to
-    pub format_version: u64,
     pub nums_rows: usize,
     pub columns_meta: HashMap<ColumnId, ColumnMeta>,
     pub compression: Compression,
 
     pub sort_min_max: Option<(Scalar, Scalar)>,
     pub block_meta_index: Option<BlockMetaIndex>,
+
+    pub has_agg_index: bool,
 }
 
 #[typetag::serde(name = "fuse")]
@@ -67,21 +66,21 @@ impl PartInfo for FusePartInfo {
 impl FusePartInfo {
     pub fn create(
         location: String,
-        format_version: u64,
         rows_count: u64,
         columns_meta: HashMap<ColumnId, ColumnMeta>,
         compression: Compression,
         sort_min_max: Option<(Scalar, Scalar)>,
         block_meta_index: Option<BlockMetaIndex>,
+        has_agg_index: bool,
     ) -> Arc<Box<dyn PartInfo>> {
         Arc::new(Box::new(FusePartInfo {
             location,
-            format_version,
             columns_meta,
             nums_rows: rows_count as usize,
             compression,
             sort_min_max,
             block_meta_index,
+            has_agg_index,
         }))
     }
 

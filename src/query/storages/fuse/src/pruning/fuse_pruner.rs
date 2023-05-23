@@ -27,7 +27,7 @@ use common_expression::SEGMENT_NAME_COL_NAME;
 use common_functions::BUILTIN_FUNCTIONS;
 use common_sql::field_default_value;
 use opendal::Operator;
-use storages_common_pruner::BlockMetaIndex;
+use storages_common_pruner::BlockInfo;
 use storages_common_pruner::InternalColumnPruner;
 use storages_common_pruner::Limiter;
 use storages_common_pruner::LimiterPrunerCreator;
@@ -36,7 +36,6 @@ use storages_common_pruner::PagePrunerCreator;
 use storages_common_pruner::RangePruner;
 use storages_common_pruner::RangePrunerCreator;
 use storages_common_pruner::TopNPrunner;
-use storages_common_table_meta::meta::BlockMeta;
 use storages_common_table_meta::meta::ClusterKey;
 use storages_common_table_meta::meta::ColumnStatistics;
 use storages_common_table_meta::meta::StatisticsOfColumns;
@@ -205,10 +204,7 @@ impl FusePruner {
     // Pruning chain:
     // segment pruner -> block pruner -> topn pruner
     #[async_backtrace::framed]
-    pub async fn pruning(
-        &self,
-        mut segment_locs: Vec<SegmentLocation>,
-    ) -> Result<Vec<(BlockMetaIndex, Arc<BlockMeta>)>> {
+    pub async fn pruning(&self, mut segment_locs: Vec<SegmentLocation>) -> Result<Vec<BlockInfo>> {
         // Segment pruner.
         let segment_pruner =
             SegmentPruner::create(self.pruning_ctx.clone(), self.table_schema.clone())?;
@@ -272,10 +268,7 @@ impl FusePruner {
 
     // topn pruner:
     // if there are ordering + limit clause and no filters, use topn pruner
-    fn topn_pruning(
-        &self,
-        metas: Vec<(BlockMetaIndex, Arc<BlockMeta>)>,
-    ) -> Result<Vec<(BlockMetaIndex, Arc<BlockMeta>)>> {
+    fn topn_pruning(&self, metas: Vec<BlockInfo>) -> Result<Vec<BlockInfo>> {
         let push_down = self.push_down.clone();
         if push_down
             .as_ref()

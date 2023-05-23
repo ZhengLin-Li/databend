@@ -185,7 +185,9 @@ impl FuseTable {
 
         let block_metas = block_metas
             .into_iter()
-            .map(|(block_meta_index, block_meta)| (Some(block_meta_index), block_meta))
+            .map(|(block_meta_index, block_meta, has_agg)| {
+                (Some(block_meta_index), block_meta, has_agg)
+            })
             .collect::<Vec<_>>();
 
         let result = self.read_partitions_with_metas(
@@ -208,7 +210,7 @@ impl FuseTable {
         &self,
         schema: TableSchemaRef,
         push_downs: Option<PushDownInfo>,
-        block_metas: &[(Option<BlockMetaIndex>, Arc<BlockMeta>)],
+        block_metas: &[(Option<BlockMetaIndex>, Arc<BlockMeta>, bool)],
         partitions_total: usize,
         pruning_stats: PruningStatistics,
     ) -> Result<(PartStatistics, Partitions)> {
@@ -246,7 +248,7 @@ impl FuseTable {
 
     pub fn to_partitions(
         schema: Option<&TableSchemaRef>,
-        block_metas: &[(Option<BlockMetaIndex>, Arc<BlockMeta>)],
+        block_metas: &[(Option<BlockMetaIndex>, Arc<BlockMeta>, bool)],
         column_nodes: &ColumnNodes,
         top_k: Option<TopK>,
         push_down: Option<PushDownInfo>,
@@ -302,7 +304,7 @@ impl FuseTable {
 
     fn all_columns_partitions(
         schema: Option<&TableSchemaRef>,
-        block_metas: &[(Option<BlockMetaIndex>, Arc<BlockMeta>)],
+        block_metas: &[(Option<BlockMetaIndex>, Arc<BlockMeta>, bool)],
         top_k: Option<TopK>,
         limit: usize,
     ) -> (PartStatistics, Partitions) {
@@ -314,13 +316,14 @@ impl FuseTable {
         }
 
         let mut remaining = limit;
-        for (block_meta_index, block_meta) in block_metas.iter() {
+        for (block_meta_index, block_meta, has_agg_index) in block_metas.iter() {
             let rows = block_meta.row_count as usize;
             partitions.partitions.push(Self::all_columns_part(
                 schema,
                 block_meta_index,
                 &top_k,
                 block_meta,
+                *has_agg_index,
             ));
             statistics.read_rows += rows;
             statistics.read_bytes += block_meta.block_size as usize;
@@ -340,7 +343,7 @@ impl FuseTable {
     }
 
     fn projection_partitions(
-        block_metas: &[(Option<BlockMetaIndex>, Arc<BlockMeta>)],
+        block_metas: &[(Option<BlockMetaIndex>, Arc<BlockMeta>, bool)],
         column_nodes: &ColumnNodes,
         projection: &Projection,
         top_k: Option<TopK>,
@@ -356,13 +359,14 @@ impl FuseTable {
         let columns = projection.project_column_nodes(column_nodes).unwrap();
         let mut remaining = limit;
 
-        for (block_meta_index, block_meta) in block_metas {
+        for (block_meta_index, block_meta, has_agg_index) in block_metas {
             partitions.partitions.push(Self::projection_part(
                 block_meta,
                 block_meta_index,
                 column_nodes,
                 top_k.clone(),
                 projection,
+                *has_agg_index,
             ));
 
             let rows = block_meta.row_count as usize;
@@ -396,6 +400,7 @@ impl FuseTable {
         block_meta_index: &Option<BlockMetaIndex>,
         top_k: &Option<TopK>,
         meta: &BlockMeta,
+        has_agg_index: bool,
     ) -> PartInfoPtr {
         let mut columns_meta = HashMap::with_capacity(meta.col_metas.len());
 
@@ -415,7 +420,6 @@ impl FuseTable {
 
         let rows_count = meta.row_count;
         let location = meta.location.0.clone();
-        let format_version = meta.location.1;
 
         let sort_min_max = top_k.as_ref().map(|top_k| {
             let stat = meta.col_stats.get(&top_k.column_id).unwrap();
@@ -424,12 +428,12 @@ impl FuseTable {
 
         FusePartInfo::create(
             location,
-            format_version,
             rows_count,
             columns_meta,
             meta.compression(),
             sort_min_max,
             block_meta_index.to_owned(),
+            has_agg_index,
         )
     }
 
@@ -439,6 +443,7 @@ impl FuseTable {
         column_nodes: &ColumnNodes,
         top_k: Option<TopK>,
         projection: &Projection,
+        has_agg_index: bool,
     ) -> PartInfoPtr {
         let mut columns_meta = HashMap::with_capacity(projection.len());
 
@@ -454,7 +459,6 @@ impl FuseTable {
 
         let rows_count = meta.row_count;
         let location = meta.location.0.clone();
-        let format_version = meta.location.1;
 
         let sort_min_max = top_k.and_then(|top_k| {
             let stat = meta.col_stats.get(&top_k.column_id);
@@ -466,12 +470,12 @@ impl FuseTable {
         // not the count the rows in this partition
         FusePartInfo::create(
             location,
-            format_version,
             rows_count,
             columns_meta,
             meta.compression(),
             sort_min_max,
             block_meta_index.to_owned(),
+            has_agg_index,
         )
     }
 }

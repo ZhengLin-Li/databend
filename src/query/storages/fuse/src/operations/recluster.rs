@@ -72,7 +72,7 @@ impl FuseTable {
 
         let default_cluster_key_id = self.cluster_key_meta.clone().unwrap().0;
         let mut blocks_map: BTreeMap<i32, Vec<(usize, Arc<BlockMeta>)>> = BTreeMap::new();
-        block_metas.iter().for_each(|(idx, b)| {
+        block_metas.iter().for_each(|(idx, b, _)| {
             if let Some(stats) = &b.cluster_stats {
                 if stats.cluster_key_id == default_cluster_key_id && stats.level >= 0 {
                     blocks_map
@@ -115,7 +115,7 @@ impl FuseTable {
         let block_metas: Vec<_> = mutator
             .selected_blocks()
             .iter()
-            .map(|meta| (None, meta.clone()))
+            .map(|meta| (None, meta.clone(), false))
             .collect();
         let (statistics, parts) = self.read_partitions_with_metas(
             self.table_info.schema(),
